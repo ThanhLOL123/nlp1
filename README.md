@@ -412,9 +412,3 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [VLSP Shared Tasks](https://vlsp.org.vn/): Vietnamese Language and Speech Processing
 - [UIT-ViSFD](https://huggingface.co/datasets/uitnlp/vietnamese_students_feedback): Vietnamese Students' Feedback Dataset
 
----
-
-⭐ **Star this repo** if you find it helpful!
-
-📧 **Questions?** Open an issue or contact the maintainers.
-"# nlp1" 
