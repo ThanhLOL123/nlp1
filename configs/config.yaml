@@ -1,0 +1,32 @@
+# configs/config.yaml
+pipeline:
+  tokenizer:
+    method: "hybrid"  # options: underthesea, pyvi, vncorenlp, hybrid
+    underthesea_format: "text"  # options: text, list
+  
+  pos_tagger:
+    method: "underthesea"  # options: underthesea, pyvi, transformer
+    model_name: null  # for transformer method
+  
+  tone_processor:
+    remove_method: "pyvi"
+    add_method: "pyvi"
+    analyze_patterns: true
+
+data:
+  vlsp2013_path: "data/raw/vlsp2013"
+  vlsp2016_path: "data/raw/vlsp2016"
+  student_feedback_path: "data/raw/student_feedback"
+  
+evaluation:
+  metrics:
+    - accuracy
+    - f1_score
+    - precision
+    - recall
+  save_confusion_matrix: true
+  save_error_analysis: true
+
+output:
+  results_dir: "data/results"
+  visualizations_dir: "data/results/visualizations"

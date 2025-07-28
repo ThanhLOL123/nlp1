@@ -1,0 +1,305 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[vietnamese]{babel}
+\usepackage{geometry}
+\geometry{a4paper, margin=1in}
+\usepackage{fancyhdr}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{listings}
+\usepackage{hyperref}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=magenta,      
+    urlcolor=cyan,
+}
+
+\author{
+    \textbf{Họ và tên:} [Tên sinh viên] \\
+    \textbf{Mã số sinh viên:} [MSSV] \\
+    \textbf{Lớp:} [Mã lớp] \\
+    \textbf{Môn học:} [Tên môn học] \\
+    \textbf{Giảng viên:} [Tên giáo sư] \\
+    \textbf{Ngày nộp:} \today
+}
+
+\title{
+    \vspace*{2cm}
+    \hrule \vspace{0.5cm}
+    \huge \textbf{BÁO CÁO BÀI TẬP} \\
+    \vspace{0.5cm}
+    \Large XÂY DỰNG PIPELINE XỬ LÝ VĂN BẢN TIẾNG VIỆT \\
+    \vspace{0.5cm} \hrule
+}
+
+\date{}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Báo cáo Bài tập}
+\fancyhead[R]{[Tên môn học]}
+\fancyfoot[C]{\thepage}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!40!black},
+    stringstyle=\color{purple},
+    breaklines=true,
+    showstringspaces=false,
+    tabsize=4,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray}
+}
+
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+
+\newpage
+\tableofcontents
+\thispagestyle{empty}
+
+\newpage
+\setcounter{page}{1}
+
+\section{TỔNG QUAN VỀ BÀI TẬP}
+
+\subsection{Mục tiêu}
+Bài tập này tập trung vào việc xây dựng một pipeline hoàn chỉnh để xử lý văn bản tiếng Việt, bao gồm các thành phần chính sau:
+\begin{itemize}
+    \item \textbf{Tiền xử lý (Preprocessing):} Chuẩn hóa và làm sạch văn bản thô.
+    \item \textbf{Tách từ (Tokenization):} Phân tách văn bản thành các đơn vị từ có ý nghĩa.
+    \item \textbf{Gán nhãn từ loại (POS Tagging):} Xác định vai trò ngữ pháp của mỗi từ (danh từ, động từ, tính từ, v.v.).
+    \item \textbf{Xử lý dấu thanh điệu (Tone Processing):} Phân tích, thêm hoặc loại bỏ dấu thanh, một đặc trưng quan trọng của tiếng Việt.
+\end{itemize}
+
+\subsection{Ý nghĩa thực tiễn}
+Một pipeline xử lý văn bản hiệu quả là nền tảng cho nhiều ứng dụng NLP thực tiễn trong tiếng Việt, chẳng hạn như:
+\begin{itemize}
+    \item Phân tích cảm xúc (sentiment analysis) trong các bài đánh giá sản phẩm, bình luận trên mạng xã hội.
+    \item Xây dựng các hệ thống hỏi đáp (question answering) và chatbot thông minh.
+    \item Tóm tắt văn bản tự động từ các bài báo, tài liệu dài.
+    \item Cải thiện chất lượng cho các hệ thống dịch máy (machine translation).
+    \item Tìm kiếm thông tin (information retrieval) chính xác hơn.
+\end{itemize}
+
+---
+
+\section{CƠ SỞ LÝ THUYẾT}
+
+\subsection{Tokenization trong tiếng Việt}
+Tokenization tiếng Việt là một bài toán phức tạp hơn so với các ngôn ngữ như tiếng Anh vì các lý do sau:
+\begin{itemize}
+    \item \textbf{Ngôn ngữ đơn lập, âm tiết tính:} Ranh giới giữa các từ không được phân định rõ ràng bằng khoảng trắng. Một từ có thể được cấu tạo từ một hoặc nhiều "tiếng" (âm tiết). Ví dụ: ``Đại học Bách khoa Hà Nội'' là một thực thể nhưng bao gồm 7 tiếng.
+    \item \textbf{Từ ghép và từ láy:} Tiếng Việt có một lượng lớn từ ghép (ví dụ: ``nhà cửa'', ``sách vở'') và từ láy (ví dụ: ``long lanh'', ``xinh xắn'') cần được nhận diện là một đơn vị duy nhất.
+    \item \textbf{Sự nhập nhằng:} Nhiều trường hợp ranh giới từ không rõ ràng và phụ thuộc vào ngữ cảnh. Ví dụ: ``tinh thần'' (spirit) vs. ``tinh'' và ``thần'' (essence and deity).
+\end{itemize}
+
+\subsection{POS Tagging}
+Gán nhãn từ loại (Part-of-Speech Tagging) là quá trình gán một nhãn ngữ pháp cho mỗi từ trong một câu. Các nhãn này tuân theo một bộ nhãn (tagset) chuẩn. Trong dự án này, các nhãn chính được sử dụng bao gồm:
+\begin{itemize}
+    \item \textbf{N} (Noun): Danh từ (ví dụ: ``sách'', ``nhà'')
+    \item \textbf{Np} (Proper Noun): Danh từ riêng (ví dụ: ``Việt Nam'', ``Hà Nội'')
+    \item \textbf{V} (Verb): Động từ (ví dụ: ``đi'', ``học'')
+    \item \textbf{A} (Adjective): Tính từ (ví dụ: ``đẹp'', ``tốt'')
+    \item \textbf{P} (Pronoun): Đại từ (ví dụ: ``tôi'', ``bạn'')
+    \item \textbf{R} (Adverb): Trạng từ (ví dụ: ``rất'', ``nhanh'')
+    \item \textbf{E} (Preposition): Giới từ (ví dụ: ``trong'', ``trên'')
+    \item \textbf{C} (Conjunction): Liên từ (ví dụ: ``và'', ``nhưng'')
+    \item \textbf{CH} (Punctuation): Dấu câu (ví dụ: ``,``, ``.'')
+\end{itemize}
+
+\subsection{Xử lý dấu thanh điệu}
+Tiếng Việt là một ngôn ngữ thanh điệu với 6 thanh điệu cơ bản, mỗi thanh điệu thay đổi ý nghĩa của từ. Việc xử lý dấu thanh điệu là rất quan trọng.
+\begin{itemize}
+    \item \textbf{Ngang} (không dấu): ma
+    \item \textbf{Huyền} (`): mà
+    \item \textbf{Sắc} (´): má
+    \item \textbf{Hỏi} (?): mả
+    \item \textbf{Ngã} (~): mã
+    \item \textbf{Nặng} (.): mạ
+\end{itemize}
+
+---
+
+\section{PHƯƠNG PHÁP THỰC HIỆN}
+
+\subsection{Công cụ và thư viện sử dụng}
+Dự án được xây dựng dựa trên các thư viện mã nguồn mở phổ biến trong cộng đồng NLP tiếng Việt:
+\begin{itemize}
+    \item \textbf{underthesea:} Một bộ công cụ mạnh mẽ cho tách từ và gán nhãn từ loại.
+    \item \textbf{pyvi:} Thư viện cung cấp các chức năng xử lý tiếng Việt, bao gồm tách từ và xử lý dấu thanh điệu.
+    \item \textbf{PyYAML:} Dùng để quản lý file cấu hình của pipeline.
+    \item \textbf{pandas:} Dùng cho việc xử lý và phân tích dữ liệu.
+    \item \textbf{Jupyter, Matplotlib:} Dùng cho việc demo, trực quan hóa và phân tích kết quả.
+\end{itemize}
+
+\subsection{Kiến trúc pipeline}
+Pipeline được thiết kế theo một luồng xử lý tuần tự, trong đó đầu ra của bước này là đầu vào của bước tiếp theo. Kiến trúc này giúp hệ thống trở nên module hóa và dễ quản lý.
+
+\begin{verbatim}
+Input Text -> Preprocessing -> Tokenization -> POS Tagging -> Tone Analysis -> Output
+\end{verbatim}
+
+\subsection{Thuật toán chi tiết}
+\begin{enumerate}
+    \item \textbf{Tiền xử lý:} Văn bản đầu vào được chuẩn hóa bằng Unicode NFC, các khoảng trắng thừa được loại bỏ, và các lỗi chính tả phổ biến có thể được sửa chữa.
+    \item \textbf{Tokenization:} Dựa vào cấu hình, pipeline sử dụng `underthesea` hoặc `pyvi` để tách văn bản thành danh sách các từ. Chế độ `hybrid` ưu tiên kết quả từ `underthesea` do độ chính xác cao hơn trong nhiều trường hợp.
+    \item \textbf{POS Tagging:} Các từ đã được tách sẽ được gán nhãn từ loại tương ứng bằng `underthesea` hoặc `pyvi`.
+    \item \textbf{Tone Processing:} Phân tích sự phân bổ của các thanh điệu trong câu, đồng thời cung cấp chức năng thêm/xóa dấu thanh.
+\end{enumerate}
+
+---
+
+\section{TRIỂN KHAI VÀ THỰC NGHIỆM}
+
+\subsection{Code implementation}
+Lớp `VietnameseNLPPipeline` trong file `src/pipeline.py` là hạt nhân của hệ thống, điều phối hoạt động của các module con.
+
+\begin{lstlisting}[caption={Đoạn code minh họa lớp Pipeline chính}, label=lst:pipeline]
+# src/pipeline.py
+import yaml
+from .preprocessor import VietnamesePreprocessor
+from .tokenizer import VietnameseTokenizer
+from .pos_tagger import VietnamesePOSTagger
+from .tone_processor import ToneProcessor
+
+class VietnameseNLPPipeline:
+    def __init__(self, config_path: str):
+        self.config = self._load_config(config_path)
+        self.preprocessor = VietnamesePreprocessor()
+        self.tokenizer = VietnameseTokenizer(
+            method=self.config['pipeline']['tokenizer']['method']
+        )
+        self.pos_tagger = VietnamesePOSTagger(
+            method=self.config['pipeline']['pos_tagger']['method']
+        )
+        self.tone_processor = ToneProcessor()
+
+    def process(self, text: str):
+        # 1. Preprocessing
+        normalized_text = self.preprocessor.normalize(text)
+        
+        # 2. Tokenization
+        tokens = self.tokenizer.tokenize(normalized_text)
+        
+        # 3. POS Tagging
+        pos_tags = self.pos_tagger.tag(tokens)
+        
+        # 4. Tone Analysis
+        tone_info = self.tone_processor.analyze_text(normalized_text)
+        
+        # Trả về kết quả
+        return {
+            'tokens': tokens,
+            'pos_tags': pos_tags,
+            'tone_info': tone_info
+        }
+\end{lstlisting}
+
+\subsection{Test cases và kết quả}
+
+\subsubsection{Test case 1: Câu đơn giản}
+\begin{itemize}
+    \item \textbf{Input:} ``Tôi đi học''
+    \item \textbf{Output (dự kiến):}
+    \begin{itemize}
+        \item Tokens: `['Tôi', 'đi', 'học']`
+        \item POS Tags: `[('Tôi', 'P'), ('đi', 'V'), ('học', 'V')]`
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Test case 2: Câu phức tạp}
+\begin{itemize}
+    \item \textbf{Input:} ``Trường Đại học Bách khoa Hà Nội công bố điểm chuẩn năm 2024.''
+    \item \textbf{Output (dự kiến):}
+    \begin{itemize}
+        \item Tokens: `['Trường', 'Đại học', 'Bách khoa', 'Hà Nội', 'công bố', 'điểm chuẩn', 'năm', '2024', '.']`
+        \item POS Tags: `[('Trường', 'N'), ('Đại học', 'N'), ('Bách khoa', 'Np'), ('Hà Nội', 'Np'), ('công bố', 'V'), ('điểm chuẩn', 'N'), ('năm', 'N'), ('2024', 'M'), ('.', 'CH')]`
+    \end{itemize}
+\end{itemize}
+
+\subsubsection{Test case 3: Xử lý dấu thanh điệu}
+\begin{itemize}
+    \item \textbf{Input:} ``Việt Nam tươi đẹp''
+    \item \textbf{Tone analysis (dự kiến):}
+    \begin{itemize}
+        \item ``Việt'': nặng
+        \item ``Nam'': ngang
+        \item ``tươi'': ngang
+        \item ``đẹp'': nặng
+    \end{itemize}
+    \item \textbf{Remove tones output:} ``Viet Nam tuoi dep''
+\end{itemize}
+
+---
+
+\section{ĐÁNH GIÁ KẾT QUẢ}
+
+\subsection{Độ chính xác (minh họa)}
+Việc đánh giá chính xác yêu cầu một bộ dữ liệu có gán nhãn chuẩn (gold standard). Dựa trên các báo cáo của các thư viện được sử dụng, có thể ước tính độ chính xác như sau:
+\begin{itemize}
+    \item \textbf{Tokenization (F1-score):} ~95-97\% trên tập dữ liệu chuẩn VLSP.
+    \item \textbf{POS Tagging (Accuracy):} ~92-94\%.
+\end{itemize}
+
+\subsection{Phân tích lỗi}
+Qua quá trình thực nghiệm, một số loại lỗi phổ biến có thể được xác định:
+\begin{itemize}
+    \item \textbf{Lỗi tách từ:} Thường xảy ra với các từ ghép không phổ biến, tên riêng nước ngoài, hoặc các từ mới chưa có trong từ điển.
+    \item \textbf{Lỗi gán nhãn từ loại:} Sự nhầm lẫn giữa các từ loại có thể xảy ra, ví dụ như giữa danh từ và động từ trong một số ngữ cảnh (ví dụ: ``câu cá'').
+\end{itemize}
+
+\subsection{Phân tích hiệu năng}
+File `benchmark_results.csv` cho thấy sự chênh lệch về tốc độ xử lý giữa các backend. `pyvi` thường nhanh hơn nhưng `underthesea` cho kết quả tách từ tốt hơn trong nhiều trường hợp. Việc lựa chọn backend phụ thuộc vào yêu cầu cụ thể của ứng dụng (ưu tiên tốc độ hay độ chính xác).
+
+---
+
+\section{HẠN CHẾ VÀ HƯỚNG PHÁT TRIỂN}
+
+\subsection{Hạn chế}
+\begin{itemize}
+    \item \textbf{Xử lý văn bản không chuẩn:} Pipeline hiện tại có thể gặp khó khăn với ngôn ngữ mạng xã hội (teencode, viết tắt, sai chính tả).
+    \item \textbf{Tốc độ xử lý:} Mặc dù đủ nhanh cho nhiều ứng dụng, việc xử lý các tập dữ liệu rất lớn (hàng triệu văn bản) có thể cần tối ưu hóa thêm.
+    \item \textbf{Nhận diện thực thể có tên (NER):} Pipeline chưa tích hợp chức năng NER, một thành phần quan trọng trong nhiều bài toán NLP.
+\end{itemize}
+
+\subsection{Hướng phát triển}
+\begin{itemize}
+    \item \textbf{Tích hợp mô hình Deep Learning:} Sử dụng các mô hình ngôn ngữ lớn như PhoBERT để cải thiện độ chính xác cho các tác vụ, đặc biệt là POS tagging và NER.
+    \item \textbf{Cải thiện xử lý văn bản không chuẩn:} Xây dựng một module tiền xử lý nâng cao để chuẩn hóa teencode và sửa lỗi chính tả.
+    \item \textbf{Xây dựng giao diện người dùng (GUI):} Tạo một giao diện đồ họa đơn giản để người dùng cuối có thể dễ dàng sử dụng pipeline mà không cần kiến thức về lập trình.
+\end{itemize}
+
+---
+
+\section{KẾT LUẬN}
+Bài tập đã xây dựng thành công một pipeline xử lý văn bản tiếng Việt cơ bản nhưng đầy đủ chức năng. Hệ thống được thiết kế theo dạng module, linh hoạt và dễ mở rộng. Kết quả thực nghiệm ban đầu cho thấy pipeline hoạt động tốt trên các câu văn bản chuẩn. Đây là một nền tảng vững chắc để phát triển các ứng dụng xử lý ngôn ngữ tự nhiên phức tạp và chuyên sâu hơn cho tiếng Việt.
+
+---
+
+\section*{TÀI LIỆU THAM KHẢO}
+\begin{enumerate}
+    \item Vu, X. S., et al. (2018). ``VnCoreNLP: A Vietnamese Natural Language Processing Toolkit.'' In *Proceedings of the 2018 Conference of the North American Chapter of the Association for Computational Linguistics: Demonstrations*.
+    \item `underthesea` project documentation: \url{https://github.com/undertheseanlp/underthesea}
+    \item `pyvi` project documentation: \url{https://github.com/trungtv/pyvi}
+\end{enumerate}
+
+---
+
+\appendix
+\section{Phụ lục}
+
+\subsection{Source code}
+Toàn bộ mã nguồn của dự án có thể được tìm thấy trong thư mục `src/`.
+
+\subsection{Dữ liệu test}
+Các mẫu câu test đa dạng được định nghĩa trong phương thức `create_test_samples()` của lớp `VietnameseDatasetLoader` trong file `src/data_loader.py`.
+
+\end{document}

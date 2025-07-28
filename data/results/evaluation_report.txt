@@ -1,0 +1,11 @@
+================================================================================
+Vietnamese NLP Pipeline Evaluation Report
+================================================================================
+
+## Processing Time Analysis
+----------------------------------------
+Total Processing Time: 11.8363 seconds
+preprocessing: 0.0676s (0.6%)
+tokenization: 4.3086s (36.4%)
+pos_tagging: 7.3761s (62.3%)
+tone_processing: 0.0840s (0.7%)
